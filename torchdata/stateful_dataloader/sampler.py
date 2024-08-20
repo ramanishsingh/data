@@ -133,16 +133,17 @@ class _StatefulDistributedSamplerIterator(Iterator[int], Stateful):
     def __init__(self, sampler, parent_iterator: Iterator[int]):
         self.sampler = sampler
         self.parent_iterator = parent_iterator
+        self.indices = list(self.parent_iterator)
+        self.current_index = 0
 
     def __next__(self) -> int:
         if self.sampler.next_yielded is not None:
-            for _ in range(self.sampler.next_yielded):
-                next(self.parent_iterator)
-
+            self.current_index = self.sampler.next_yielded
             self.sampler.yielded = self.sampler.next_yielded
             self.sampler.next_yielded = None
 
-        val = next(self.parent_iterator)
+        val = self.indices[self.current_index]
+        self.current_index += 1
         self.sampler.yielded += 1
         return val
 
