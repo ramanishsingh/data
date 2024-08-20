@@ -133,7 +133,6 @@ class _StatefulDistributedSamplerIterator(Iterator[int], Stateful):
     def __init__(self, sampler):
         self.sampler = sampler
 
-
         if self.sampler.shuffle:
             # deterministically shuffle based on epoch and seed
             g = torch.Generator()
@@ -148,9 +147,7 @@ class _StatefulDistributedSamplerIterator(Iterator[int], Stateful):
             if padding_size <= len(indices):
                 indices += indices[:padding_size]
             else:
-                indices += (indices * math.ceil(padding_size / len(indices)))[
-                    :padding_size
-                ]
+                indices += (indices * math.ceil(padding_size / len(indices)))[:padding_size]
         else:
             # remove tail of data to make it evenly divisible.
             indices = indices[: self.sampler.total_size]
@@ -159,8 +156,6 @@ class _StatefulDistributedSamplerIterator(Iterator[int], Stateful):
         # subsample
         indices = indices[self.sampler.rank : self.sampler.total_size : self.sampler.num_replicas]
         assert len(indices) == self.sampler.num_samples
-
-
 
         self.parent_iterator = iter(indices)
         self.indices = list(self.parent_iterator)
@@ -203,7 +198,7 @@ class StatefulDistributedSampler(torch.utils.data.distributed.DistributedSampler
         return {self._YIELDED: self.yielded}
 
     def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
-        if state_dict[self._YIELDED] <0:
+        if state_dict[self._YIELDED] < 0:
             raise ValueError("Cannot load state_dict with negative yielded value")
 
         self.next_yielded = state_dict[self._YIELDED]
