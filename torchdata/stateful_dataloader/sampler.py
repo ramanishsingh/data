@@ -166,6 +166,8 @@ class _StatefulDistributedSamplerIterator(Iterator[int], Stateful):
             self.current_index = self.sampler.next_yielded
             self.sampler.yielded = self.sampler.next_yielded
             self.sampler.next_yielded = None
+        if self.current_index >= len(self.indices):
+            raise StopIteration  
 
         val = self.indices[self.current_index]
         self.current_index += 1
